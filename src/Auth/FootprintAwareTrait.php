@@ -144,8 +144,7 @@ trait FootprintAwareTrait
      */
     protected function _getUserInstanceFromArray($user)
     {
-        $primaryKey = TableRegistry::get($this->_userModel)->primaryKey();
-        $options = ['accessibleFields' => [$primaryKey => true]];
+        $options = ['accessibleFields' => ['*' => true], 'validate' => false];
         return $this->_circumventEventManager('newEntity', [$user, $options]);
     }
 
