@@ -2,6 +2,9 @@
 namespace Muffin\Footprint\Model\Behavior;
 
 use ArrayObject;
+use Cake\Database\Expression\IdentifierExpression;
+use Cake\Database\Expression\QueryExpression;
+use Cake\Database\ValueBinder;
 use Cake\Event\Event;
 use Cake\ORM\Behavior;
 use Cake\ORM\Entity;
@@ -80,6 +83,21 @@ class FootprintBehavior extends Behavior
 
         foreach (array_keys($config) as $field) {
             $path = $this->config('propertiesMap.' . $field);
+            $check = false;
+
+            $query->traverseExpressions(function ($expression) use (&$check, $field, $query) {
+                if ($expression instanceof IdentifierExpression) {
+                    !$check && $check = $expression->getIdentifier() === $field;
+                    return;
+                }
+                $alias = $this->_table->aliasField($field);
+                !$check && $check = preg_match('/' . $alias . '/', $expression->sql($query->valueBinder()));
+            });
+
+            if ($check) {
+                continue;
+            }
+
             $query->where([
                 $field => current(Hash::extract((array)$options, $path))
             ]);
