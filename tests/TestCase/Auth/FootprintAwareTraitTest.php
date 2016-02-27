@@ -48,6 +48,8 @@ class FootprintAwareTraitTest extends TestCase
 
         $this->controller->Auth->identify();
 
-        $this->assertNotNull($this->controller->getCurrentUserInstance());
+        $result = $this->controller->getCurrentUserInstance();
+        $this->assertNotNull($result);
+        $this->assertTrue($result->accessible('id'));
     }
 }
